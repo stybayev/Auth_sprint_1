@@ -6,7 +6,8 @@ from datetime import datetime
 from dotenv import load_dotenv
 from uuid import uuid4
 from psycopg2.extras import DictCursor
-from passlib.hash import pbkdf2_sha256
+from werkzeug.security import generate_password_hash
+
 
 load_dotenv()
 
@@ -34,9 +35,10 @@ def create_su(login: str, psw: str):
         except psycopg2.errors.UniqueViolation:
             logging.error('Учетная запись администратора уже существует')
             return
+
         query = (
             "INSERT INTO auth.users (id, login, password, first_name, created_at) "
-            f"VALUES ('{id_user}', '{login}', '{pbkdf2_sha256.hash(psw)}', 'admin', '{datetime.now()}')"
+            f"VALUES ('{id_user}', '{login}', '{generate_password_hash(psw)}', 'admin', '{datetime.now()}')"
         )
         cursor.execute(query)
         pg_conn.commit()
